@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
+import { ObjectId } from 'mongodb';
 
 import { saveUser, findUser, patchUser, deleteUser, findAllUsers } from '../services/userServices';
 import { STATUS_CODES } from '../config/consts';
-import { ObjectId } from 'mongodb';
+import { sendMessageToRabbit } from '../config/rabbit';
+import config from '../config/config';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -21,10 +23,13 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         if (user) {
             throw createHttpError(STATUS_CODES.BAD_REQUEST, 'Email exists')
         }
-        const createdUsers = await saveUser(req.body)
+        const createdUser = await saveUser(req.body)
 
-        // send message to broker here
-        res.status(STATUS_CODES.CREATED).json(createdUsers);
+        // sending msg to rabbit
+        if (createdUser.insertedId) {
+            sendMessageToRabbit(JSON.stringify(createdUser), config.rabbitQueues.userCreated);
+        }
+        res.status(STATUS_CODES.CREATED).json(createdUser);
     } catch (error) {
         next(error);
     }
@@ -62,10 +67,12 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 
 export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await deleteUser(new ObjectId(req.params?.id))
+        const deletedUser = await deleteUser(new ObjectId(req.params?.id))
 
-        // send message to broker here
-        res.status(STATUS_CODES.OK).json(user);
+        if (deletedUser.deletedCount === 1) {
+            sendMessageToRabbit(JSON.stringify(deletedUser), config.rabbitQueues.userDeleted);
+        }
+        res.status(STATUS_CODES.OK).json(deletedUser);
     } catch (error) {
         next(error);
     }
