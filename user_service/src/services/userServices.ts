@@ -2,13 +2,22 @@ import { ObjectId } from 'mongodb';
 
 import db from '../config/dbClient';
 import { UserFilter, UserUpdate, UserCreate } from '../types/user';
+import { sendMessageToRabbit } from '../config/rabbit';
+import config from '../config/config';
 
 export const findAllUsers = async () => {
-    return await db.users.find({}).toArray();
+    return db.users.find({}).toArray();
 }
 
 export const saveUser = async (data: UserCreate) => {
-    return db.users.insertOne({ ...data, ...{ createdAt: new Date().toISOString() } });
+    const user = await db.users.insertOne({ ...data, ...{ createdAt: new Date().toISOString() } });
+
+    // sending msg to rabbit
+    if (user.insertedId) {
+        sendMessageToRabbit(JSON.stringify(user), config.rabbitQueues.userCreated);
+    }
+
+    return user;
 }
 
 export const findUser = async (filter: UserFilter) => {
@@ -23,5 +32,9 @@ export const patchUser = async (id: ObjectId, data: UserUpdate) => {
 
 export const deleteUser = async (id: ObjectId) => {
     const user = await db.users.deleteOne({ _id: id });
+    if (user.deletedCount === 1) {
+        sendMessageToRabbit(JSON.stringify(user), config.rabbitQueues.userDeleted);
+    }
+
     return user;
 }

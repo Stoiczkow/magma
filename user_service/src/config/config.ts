@@ -2,11 +2,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+type RabbitQueues = {
+    userCreated: string,
+    userDeleted: string
+}
+
 interface Config {
     port: number;
     nodeEnv: string;
-    dbUrl: string
-    dbName: string
+    dbUrl: string;
+    dbName: string;
+    rabbitUrl: string;
+    rabbitQueues: RabbitQueues;
 }
 
 const config: Config = {
@@ -15,6 +22,8 @@ const config: Config = {
     //dbUrl: "mongodb+srv://root:example@127.0.0.1:8082?writeConcern=majority",
     dbUrl: process.env.DB_URL || 'mongodb://localhost:27017',
     dbName: process.env.DB_NAME || 'test',
+    rabbitUrl: process.env.RABBITMQ_URL || 'amqp://localhost',
+    rabbitQueues: JSON.parse(process.env.QUEUES ? process.env.QUEUES : '{}'),
 };
 
 export default config;
