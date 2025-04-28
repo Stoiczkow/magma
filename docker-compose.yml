@@ -26,38 +26,38 @@ services:
       - 5671:5671
       - 5672:5672
   
-  # user_service:
-  #   build: ./user_service/
-  #   image: user_service
-  #   container_name: user_service
-  #   restart: unless-stopped
-  #   depends_on:
-  #     mongo:
-  #       condition: service_started
-  #   networks:
-  #     - magma
-  #   environment:
-  #     - QUEUES=${QUEUES}
-  #     - RABBITMQ_URL=${RABBITMQ_URL}
-  #     - PORT=${PORT}
-  #     - DB_URL=${DB_URL}
-  #     - DB_NAME=${DB_NAME}
-  #     - NODE_ENV=${NODE_ENV}
-  #     - DB_USER=${DB_USER}
-  #     - DB_PASS=${DB_PASS}
-  #   ports:
-  #     - 3000:3000
+  user_service:
+    build: ./user_service/
+    image: user_service
+    container_name: user_service
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_started
+    networks:
+      - magma
+    environment:
+      - QUEUES=${QUEUES}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - PORT=${PORT}
+      - DB_URL=${DB_URL}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=${NODE_ENV}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    ports:
+      - 3000:3000
 
-  # notification_service:
-  #   build: ./notification_service/
-  #   image: notification_service
-  #   container_name: notification_service
-  #   restart: unless-stopped
-  #   networks:
-  #     - magma
-  #   environment:
-  #     - QUEUES=${QUEUES}
-  #     - RABBITMQ_URL=${RABBITMQ_URL}
+  notification_service:
+    build: ./notification_service/
+    image: notification_service
+    container_name: notification_service
+    restart: unless-stopped
+    networks:
+      - magma
+    environment:
+      - QUEUES=${QUEUES}
+      - RABBITMQ_URL=${RABBITMQ_URL}
 
 networks:
   magma:
