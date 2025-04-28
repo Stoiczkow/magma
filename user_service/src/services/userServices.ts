@@ -3,8 +3,21 @@ import { ObjectId } from 'mongodb';
 import db from '../config/dbClient';
 import { UserFilter, UserUpdate, UserCreate } from '../types/user';
 
-export const findAllUsers = async () => {
-    return db.users.find({}).toArray();
+export const findAllUsers = async (page = 1, limit = 5) => {
+    const skipPages = (page - 1) * limit;
+    const users = await db.users.find({})
+        .skip(skipPages)
+        .limit(limit)
+        .toArray();
+
+    const allUsersCount = await db.users.countDocuments();
+
+    return {
+        users,
+        count: allUsersCount,
+        page,
+        totalPages: Math.ceil(allUsersCount / limit)
+    };
 }
 
 export const saveUser = async (data: UserCreate) => {
