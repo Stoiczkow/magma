@@ -4,21 +4,27 @@ import config from './config';
 
 let channel: amqplib.Channel;
 
-const rabbitClient = async () => {
+const connectToRabbit = async () => {
     try {
-        const connection = await amqplib.connect(config.rabbitUrl);
+        const connection = await amqplib.connect(config.rabbitUrl,);
         channel = await connection.createChannel();
 
         for (const queue of Object.values(config.rabbitQueues)) {
             channel.assertQueue(queue, { durable: true });
-        }
-        return channel;
+        };
     } catch (error) {
-        console.error('Failed to send message:', error);
+        console.error('Failed to connect to Rabbit', error);
+        if (!channel) {
+            setTimeout(async () => {
+                console.log('Reconnecting to rabbit ...');
+                await connectToRabbit();
+            }, 5000);
+        }
+
     }
 }
 
-rabbitClient()
+connectToRabbit()
 
 export const sendMessageToRabbit = (message: string, queue: string) => {
     if (channel) {
