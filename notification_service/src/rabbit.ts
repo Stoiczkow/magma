@@ -30,5 +30,11 @@ export const connectToRabbitMQ = async (onMessage: (msg: string) => void) => {
 
     } catch (error) {
         console.error('Failed to connect to RabbitMQ:', error);
+        setTimeout(async () => {
+            console.log('Reconnecting to rabbit ...');
+            await connectToRabbitMQ((msg: string) => {
+                console.log(`Message: ${msg}`);
+            });
+        }, 5000);
     }
 }
