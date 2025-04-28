@@ -9,7 +9,6 @@ type RabbitQueues = {
 
 interface Config {
     port: number;
-    nodeEnv: string;
     dbUrl: string;
     dbName: string;
     dbUser: string;
@@ -20,7 +19,6 @@ interface Config {
 
 const config: Config = {
     port: Number(process.env.PORT) || 3000,
-    nodeEnv: process.env.NODE_ENV || 'development',
     dbUrl: process.env.DB_URL || 'localhost:27017',
     dbName: process.env.DB_NAME || 'test',
     dbUser: process.env.DB_USER || 'root',

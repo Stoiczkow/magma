@@ -6,12 +6,14 @@ import { saveUser, findUser, patchUser, deleteUser, findAllUsers } from '../serv
 import { STATUS_CODES } from '../config/consts';
 import { sendMessageToRabbit } from '../config/rabbit';
 import config from '../config/config';
+import logger from '../services/logger';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await findAllUsers()
         res.status(200).json(users);
     } catch (error) {
+        logger.error(() => 'Error getting all users', error);
         next(error);
     }
 };
@@ -31,6 +33,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
         }
         res.status(STATUS_CODES.CREATED).json(createdUser);
     } catch (error) {
+        logger.error(() => 'Error creating user', error);
         next(error);
     }
 };
@@ -43,6 +46,7 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
         }
         res.status(STATUS_CODES.OK).json(user);
     } catch (error) {
+        logger.error(() => 'Error getting user', error);
         next(error);
     }
 };
@@ -61,6 +65,7 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
         const updatedUser = await patchUser(new ObjectId(req.params?.id), req.body)
         res.status(STATUS_CODES.OK).json(updatedUser);
     } catch (error) {
+        logger.error(() => 'Error updating user', error);
         next(error);
     }
 };
@@ -74,6 +79,7 @@ export const removeUser = async (req: Request, res: Response, next: NextFunction
         }
         res.status(STATUS_CODES.OK).json(deletedUser);
     } catch (error) {
+        logger.error(() => 'Error deleting user', error);
         next(error);
     }
 };
