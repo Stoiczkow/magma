@@ -5,8 +5,6 @@ services:
     image: mongo
     container_name: mongo
     restart: unless-stopped
-    ports:
-      - 27017:27017
     networks:
       - magma
     environment:
@@ -21,10 +19,6 @@ services:
       - magma
     labels:
       - traefik.enable=false
-    ports:
-      - 15672:15672
-      - 5671:5671
-      - 5672:5672
   
   user_service:
     build: ./user_service/
@@ -46,7 +40,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
     ports:
-      - 3000:3000
+      - ${USER_SERVICE_EXPOSE_PORT}:3000
 
   notification_service:
     build: ./notification_service/
