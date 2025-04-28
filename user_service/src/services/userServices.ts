@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import db from '../config/dbClient';
 import { UserFilter, UserUpdate, UserCreate } from '../types/user';
 
-export const findAllUsers = async (page = 1, limit = 5) => {
+export const findAllUsers = async (page: number, limit: number) => {
     const skipPages = (page - 1) * limit;
     const users = await db.users.find({})
         .skip(skipPages)

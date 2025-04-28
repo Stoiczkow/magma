@@ -10,7 +10,9 @@ import logger from '../services/logger';
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await findAllUsers()
+        const page = parseInt(req.query?.page as string) || 1;
+        const limit = parseInt(req.query?.limit as string) || 5;
+        const users = await findAllUsers(page, limit)
         res.status(200).json(users);
     } catch (error) {
         logger.error(() => 'Error getting all users', error);
